@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script>
+        /**
+         * Convert text to Subrip Text
+         * 
+         * 
+         */
+        const ESTIMATED_TIME_PER_CHAR = 0.07;
+        const TIME_PADDING = 2;
+
+
+        function createSRT(text, padding = TIME_PADDING, timePerChar = ESTIMATED_TIME_PER_CHAR) {
+            text = text.trim();
+            if (text === '') {
+                return text;
+            }
+
+            let lines = text.split(/\r?\n/)
+                .filter(value => {
+                    return value != '';
+                });
+            let output = '';
+            let secondStart = 0;
+
+            for (let i = 0; i < lines.length; i++) {
+                let secondEnd = secondStart + padding + timePerChar * lines[i].length;
+                output += i + 1 + '\n';
+                output += createTime(secondStart, secondEnd) + '\n';
+                output +=
+                    lines[i] + '\n\n';
+
+                secondStart = secondEnd;
+            }
+            return output;
+        }
+
+
+        function createTime(secondStart, secondEnd) {
+            return `${timeFromSeconds(secondStart)} --> ${timeFromSeconds(secondEnd)}`;
+        }
+
+        function timeFromSeconds(seconds) {
+            let minutes = Math.floor(seconds / 60);
+            let hour = padTimeWithZero(minutes / 60, 2, 24);
+            let minute = padTimeWithZero(minutes % 60, 2, 60);
+            let second = padTimeWithZero(seconds % 60, 2, 60);
+            let millisecond = padTimeWithZero((seconds - Math.floor(seconds)) * 1000, 3, 1000);
+            return `${hour}:${minute}:${second},${millisecond}`;
+        }
+
+        function padTimeWithZero(int, leadingZeros, maxNumber) {
+            if (int > maxNumber) {
+                return int;
+            }
+            return ("000" + Math.floor(int)).slice(-leadingZeros).toString();
+        }
+
+        /**
+         * Interface
+         * 
+         */
+        window.addEventListener('load', interface);
+
+
+        function interface() {
+            const file = document.getElementById('file-input');
+            const inputText = document.getElementById('text-input');
+            const submit = document.getElementById('submit');
+            const output = document.getElementById('output');
+            const download = document.getElementById('download');
+            const form = document.getElementById('form');
+            const padding = document.getElementById('padding');
+            const timePerCharacter = document.getElementById("time-per-character");
+            const fileEncoding = document.getElementById('file-encoding');
+
+            padding.value = TIME_PADDING;
+            timePerCharacter.value = ESTIMATED_TIME_PER_CHAR;
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+
+                let settings = getSettings();
+
+
+                output.textContent = createSRT(inputText.textContent, settings.padding, settings.timePerChar);
+            })
+
+            file.addEventListener('input', e => {
+                const reader = new FileReader();
+
+                reader.readAsText(file.files[0], fileEncoding.value);
+
+                reader.addEventListener('load', e => {
+                    inputText.value = e.target.result;
+                    setOutput(inputText.value);
+                })
+
+            });
+
+            padding.addEventListener('input', e => {
+                setOutput(inputText.value);
+            });
+            timePerCharacter.addEventListener('input', e => {
+                setOutput(inputText.value);
+            });
+            inputText.addEventListener('input', () => {
+                setOutput(inputText.value);
+            });
+
+            save.addEventListener('click', async function (e) {
+                const newHandle = await window.showSaveFilePicker({
+                    types: [
+                        {
+                            description: 'Text',
+                            accept: {
+                                'text/txt': ['.txt']
+                            }
+                        },
+                        {
+                            description: 'Subtitle',
+                            accept: {
+                                'text/srt': ['.srt']
+                            }
+                        }
+                    ]
+                });
+                const writableStream = await newHandle.createWritable();
+                await writableStream.write(output.textContent);
+                await writableStream.close();
+            });
+
+            function setOutput(input) {
+                const settings = getSettings();
+                output.textContent = createSRT(input, settings.padding, settings.timePerChar);
+            }
+            function getSettings() {
+                let timePerChar = Number(timePerCharacter.value) === NaN ? ESTIMATED_TIME_PER_CHAR : Number(timePerCharacter.value);
+                let paddingTime = Number(padding.value) === NaN ? TIME_PADDING : Number(padding.value);
+                return { timePerChar: timePerChar, padding: paddingTime };
+            }
+
+        }
+
+
+
+
+    </script>
+
+</head>
+
+<body>
+    <h1>Convert text to .srt</h1>
+    <section>
+        <h2>Input</h2>
+        <form method="post" id="form">
+
+            <label for="file-input">File input</label>
+            <input type="file" accept=".txt" name="file-input" id="file-input">
+            <select name="encoding" id="file-encoding">
+                <option value="UTF-8">UTF-8</option>
+                <option value="UTF-16">UTF-16</option>
+                <option value="ISO-8859-1" selected>ISO-8859-1</option>
+                <option value="CP1251">CP1251</option>
+            </select>
+            <label for="text-input">Text input</label>
+            <textarea id="text-input" name="text-input">
+                </textarea>
+
+            <input type="number" name="padding" id="padding" value="">
+            <label for="padding">Padding in seconds.</label>
+            <input type="number" step="0.01" name="time-per-character" id="time-per-character" value="">
+            <label for="time-per-character" step="0.1">Time in seconds per character</label>
+
+        </form>
+    </section>
+    <section>
+        <h2>Output</h2>
+        <textarea id="output" name="" id="" cols="30" rows="10"></textarea>
+        <button id="save">Save</button>
+    </section>
+</body>
+
+</html>
