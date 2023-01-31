@@ -128,7 +128,7 @@
 
             function setOutput(input) {
                 const settings = getSettings();
-                output.textContent = createSRT(input, settings.padding, settings.timePerChar);
+                output.value = createSRT(input, settings.padding, settings.timePerChar);
             }
             function getSettings() {
                 let timePerChar = Number(timePerCharacter.value) === NaN ? ESTIMATED_TIME_PER_CHAR : Number(timePerCharacter.value);
