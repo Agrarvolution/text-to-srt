@@ -105,7 +105,7 @@
             timePerCharacter.addEventListener('input', e => {
                 setOutput(inputText.value);
             });
-            inputText.addEventListener('input', () => {
+            inputText.addEventListener('input', e => {
                 setOutput(inputText.value);
             });
 
@@ -113,15 +113,15 @@
                 const newHandle = await window.showSaveFilePicker({
                     types: [
                         {
-                            description: 'Text',
+                            description: 'Subtitle [SubRip File]',
                             accept: {
-                                'text/txt': ['.txt']
+                                'text/srt': ['.srt']
                             }
                         },
                         {
-                            description: 'Subtitle',
+                            description: 'Text',
                             accept: {
-                                'text/srt': ['.srt']
+                                'text/txt': ['.txt']
                             }
                         }
                     ]
@@ -147,7 +147,25 @@
 
 
     </script>
+    <style>
+        html {
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
 
+        label {
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            height: 30vh;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #text-input {
+            height: 10rem;
+        }
+    </style>
 </head>
 
 <body>
@@ -158,26 +176,27 @@
 
             <label for="file-input">File input</label>
             <input type="file" accept=".txt" name="file-input" id="file-input">
+            <label for="encoding">Character encoding</label>
             <select name="encoding" id="file-encoding">
                 <option value="UTF-8">UTF-8</option>
                 <option value="UTF-16">UTF-16</option>
                 <option value="ISO-8859-1" selected>ISO-8859-1</option>
                 <option value="CP1251">CP1251</option>
             </select>
+
             <label for="text-input">Text input</label>
-            <textarea id="text-input" name="text-input">
-                </textarea>
+            <textarea id="text-input" name="text-input"></textarea>
 
-            <input type="number" name="padding" id="padding" value="">
             <label for="padding">Padding in seconds.</label>
-            <input type="number" step="0.01" name="time-per-character" id="time-per-character" value="">
-            <label for="time-per-character" step="0.1">Time in seconds per character</label>
+            <input type="number" name="padding" id="padding" value="">
 
+            <label for="time-per-character" step="0.1">Time in seconds per character</label>
+            <input type="number" step="0.01" name="time-per-character" id="time-per-character" value="">
         </form>
     </section>
     <section>
         <h2>Output</h2>
-        <textarea id="output" name="" id="" cols="30" rows="10"></textarea>
+        <textarea id="output"></textarea>
         <button id="save">Save</button>
     </section>
 </body>
