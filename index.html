@@ -44,16 +44,16 @@
 
         function timeFromSeconds(seconds) {
             let minutes = Math.floor(seconds / 60);
-            let hour = padTimeWithZero(minutes / 60, 2, 24);
-            let minute = padTimeWithZero(minutes % 60, 2, 60);
-            let second = padTimeWithZero(seconds % 60, 2, 60);
-            let millisecond = padTimeWithZero((seconds - Math.floor(seconds)) * 1000, 3, 1000);
+            let hour = padTimeWithZero(minutes / 60, 2, 23);
+            let minute = padTimeWithZero(minutes % 60, 2, 59);
+            let second = padTimeWithZero(seconds % 60, 2, 59);
+            let millisecond = padTimeWithZero(seconds % 1 * 1000, 3, 999);
             return `${hour}:${minute}:${second},${millisecond}`;
         }
 
         function padTimeWithZero(int, leadingZeros, maxNumber) {
             if (int > maxNumber) {
-                return int;
+                int = maxNumber;
             }
             return ("000" + Math.floor(int)).slice(-leadingZeros).toString();
         }
