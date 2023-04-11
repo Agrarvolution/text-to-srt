@@ -89,7 +89,7 @@
             file.addEventListener('input', e => {
                 readFile();
             });
-            fileEncoding.addEventListener('input',e => {
+            fileEncoding.addEventListener('input', e => {
                 if (file.value !== '') {
                     readFile();
                 }
@@ -105,25 +105,29 @@
             });
 
             save.addEventListener('click', async function (e) {
-                const newHandle = await window.showSaveFilePicker({
-                    types: [
-                        {
-                            description: 'Subtitle [SubRip File]',
-                            accept: {
-                                'text/srt': ['.srt']
+                try {
+                    const newHandle = await window.showSaveFilePicker({
+                        types: [
+                            {
+                                description: 'Subtitle [SubRip File]',
+                                accept: {
+                                    'text/srt': ['.srt']
+                                }
+                            },
+                            {
+                                description: 'Text',
+                                accept: {
+                                    'text/txt': ['.txt']
+                                }
                             }
-                        },
-                        {
-                            description: 'Text',
-                            accept: {
-                                'text/txt': ['.txt']
-                            }
-                        }
-                    ]
-                });
-                const writableStream = await newHandle.createWritable();
-                await writableStream.write(output.textContent);
-                await writableStream.close();
+                        ]
+                    });
+                    const writableStream = await newHandle.createWritable();
+                    await writableStream.write(output.value);
+                    await writableStream.close();
+                } catch (e) {
+                    return false;
+                }
             });
 
             function setOutput(input) {
@@ -145,12 +149,7 @@
                     setOutput(inputText.value);
                 });
             }
-
         }
-
-
-
-
     </script>
     <style>
         html {
